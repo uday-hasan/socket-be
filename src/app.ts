@@ -8,6 +8,7 @@ import router from "./routes/index.js";
 
 const app = express();
 const server = http.createServer(app);
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(cors());
