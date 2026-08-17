@@ -1,0 +1,54 @@
+// Add these relation fields to your existing User model:
+//
+// model User {
+//   ...existing fields...
+//   conversationsAsUserA Conversation[] @relation("ConversationsAsUserA")
+//   conversationsAsUserB Conversation[] @relation("ConversationsAsUserB")
+//   sentMessages         Message[]
+// }
+
+model Conversation {
+  id String @id @default(cuid())
+
+  // TWO FIXED FIELDS — not an array, not a join table. This is what
+  // structurally guarantees a conversation can only ever involve exactly
+  // two people. There is no field anywhere you could add a third
+  // participant to, even by mistake — the schema itself enforces it,
+  // not just application logic that could be bypassed by a bug.
+  userAId String
+  userBId String
+
+  userA User @relation("ConversationsAsUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB User @relation("ConversationsAsUserB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Prevents creating two separate conversation rows for the same pair of
+  // users. IMPORTANT CAVEAT: this only works if your application code
+  // always stores the pair in a consistent order (e.g. smaller id first).
+  // Without that rule, "A talks to B" and "B talks to A" would be seen as
+  // DIFFERENT pairs by this constraint and both would be allowed to exist —
+  // defeating the whole point. See getOrCreateConversation() below.
+  @@unique([userAId, userBId])
+  @@map("conversations")
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  content String
+  readAt  DateTime? // null = unread. Set when the recipient views it.
+
+  createdAt DateTime @default(now())
+
+  @@map("messages")
+}

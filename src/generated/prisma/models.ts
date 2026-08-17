@@ -8,4 +8,9 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Conversation.ts'
+export type * from './models/Message.ts'
+export type * from './models/User.ts'
+export type * from './models/RefreshToken.ts'
+export type * from './models/Messages.ts'
 export type * from './commonInputTypes.ts'

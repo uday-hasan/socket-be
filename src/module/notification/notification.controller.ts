@@ -8,11 +8,14 @@ const NotificationController = {
   createNotification: catchAsync(async (req: Request, res: Response) => {
     const { message } = req.body;
     const notification = await NotificationService.createNotification(message);
-    if (res.app.locals.wss) {
-      notifyAll(
-        { type: "notification", payload: notification },
-        res.app.locals.wss,
-      );
+    console.log({ locals: res.app.locals, hello: "world" });
+    if (res.app.locals.broadcastToAll) {
+      console.log("Hitting create notification");
+      res.app.locals.broadcastToAll(notification);
+      // notifyAll(
+      //   { type: "notification", payload: notification },
+      //   res.app.locals.wss,
+      // );
     }
     sendResponse(res, {
       statusCode: 201,

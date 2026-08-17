@@ -1,0 +1,10 @@
+enum Role {
+    ADMIN
+    USER
+}
+
+enum CommonStatus {
+    ACTIVE
+    INACTIVE
+    DELETED
+}

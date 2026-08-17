@@ -10,7 +10,7 @@ const getCookieDomain = () => {
 };
 
 const BASE_COOKIE_OPTIONS = {
-  httpOnly: isSecure,
+  httpOnly: true,
   secure: isSecure,
   sameSite: isSecure ? ("none" as const) : ("lax" as const),
   path: "/",
@@ -24,12 +24,12 @@ export const setAccessTokenCookie = (res: Response, token: string): void => {
   });
 };
 
-// export const setRefreshTokenCookie = (res: Response, token: string): void => {
-//   res.cookie('refreshToken', token, {
-//     ...BASE_COOKIE_OPTIONS,
-//     maxAge: parseToMilliseconds(env.JWT_REFRESH_EXPIRES_IN),
-//   });
-// };
+export const setRefreshTokenCookie = (res: Response, token: string): void => {
+  res.cookie("refreshToken", token, {
+    ...BASE_COOKIE_OPTIONS,
+    maxAge: parseToMilliseconds(env.JWT_REFRESH_EXPIRES_IN),
+  });
+};
 
 export const clearAuthCookies = (res: Response): void => {
   const domain = getCookieDomain();

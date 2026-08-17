@@ -1,0 +1,48 @@
+model User {
+    id       String       @id @default(cuid())
+    email    String       @unique
+    password String
+    name     String
+    role     Role         @default(USER)
+    status   CommonStatus @default(ACTIVE)
+
+    // Refresh tokens (one user can have multiple sessions)
+    refreshTokens RefreshToken[]
+
+    conversationsAsUserA Conversation[] @relation("ConversationsAsUserA")
+    conversationsAsUserB Conversation[] @relation("ConversationsAsUserB")
+    sentMessages         Message[]
+
+    createdAt        DateTime   @default(now())
+    updatedAt        DateTime   @updatedAt
+    sendMessages     Messages[] @relation("SentMessages")
+    receivedMessages Messages[] @relation("ReceivedMessages")
+
+    @@map("users")
+}
+
+model RefreshToken {
+    id        String   @id @default(cuid())
+    token     String   @unique
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    expiresAt DateTime
+    createdAt DateTime @default(now())
+
+    @@map("refresh_tokens")
+}
+
+model Messages {
+    id          String    @id @default(uuid())
+    senderId    String
+    recipientId String
+    text        String
+    readAt      DateTime?
+    createdAt   DateTime  @default(now())
+
+    sender    User @relation("SentMessages", fields: [senderId], references: [id])
+    recipient User @relation("ReceivedMessages", fields: [recipientId], references: [id])
+
+    @@index([senderId, recipientId])
+    @@index([recipientId, senderId])
+}
